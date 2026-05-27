@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Framework de Priorización</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --surface: #ffffff;
+    --surface-2: #f1efe8;
+    --text: #1a1a1a;
+    --text-2: #5f5e5a;
+    --text-3: #888780;
+    --border: rgba(0,0,0,0.12);
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 500; margin: 0 0 4px; }
+  h2 { font-size: 18px; font-weight: 500; margin: 2rem 0 12px; }
+  h3 { font-size: 15px; font-weight: 500; margin: 0 0 8px; }
+  p { margin: 0 0 8px; }
+  .muted { color: var(--text-2); font-size: 14px; }
+  .subtitle { color: var(--text-2); font-size: 14px; margin: 0 0 1.5rem; }
+
+  .fast-track {
+    background: #FCEBEB;
+    border: 1px solid #F09595;
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .fast-track .label {
+    display: inline-block;
+    background: #791F1F;
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .fast-track h3 { color: #501313; margin-bottom: 6px; }
+  .fast-track p { color: #791F1F; font-size: 14px; margin-bottom: 4px; }
+  .fast-track ul { color: #791F1F; font-size: 14px; margin: 4px 0; padding-left: 20px; }
+
+  .flow-diagram {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .flow-step:last-child { margin-bottom: 0; }
+  .flow-num {
+    background: var(--text);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .flow-content { flex: 1; }
+  .flow-content strong { font-weight: 500; font-size: 14px; display: block; margin-bottom: 2px; }
+  .flow-content span { font-size: 13px; color: var(--text-2); }
+
+  .formula-box {
+    background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .formula-box code {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 15px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+
+
+  .squad-dropdown {
+    width: 100%;
+    padding: 10px 14px;
+    border: 0.5px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    margin-bottom: 6px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235f5e5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .squad-dropdown:hover { background-color: var(--surface-2); }
+  .squad-dropdown:focus {
+    outline: none;
+    border-color: var(--text-2);
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .row label {
+    font-size: 13px;
+    color: var(--text-2);
+    width: 110px;
+    flex-shrink: 0;
+  }
+  .row input[type="range"] {
+    flex: 1;
+    accent-color: var(--text);
+  }
+  .row .value {
+    font-size: 13px;
+    min-width: 150px;
+    text-align: right;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .checkbox-row input { accent-color: #791F1F; }
+  .checkbox-row label { font-size: 14px; cursor: pointer; flex: 1; }
+  .checkbox-row .tag {
+    font-size: 11px;
+    background: #791F1F;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .results {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 0.5px solid var(--border);
+  }
+  .stat {
+    background: var(--surface-2);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+  .stat-label { font-size: 12px; color: var(--text-2); margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 500; }
+
+  .linear-priority {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .linear-priority .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lp-urgent { background: #FCEBEB; color: #791F1F; }
+  .lp-high { background: #E1F5EE; color: #085041; }
+  .lp-medium { background: #FAEEDA; color: #854F0B; }
+  .lp-low { background: #F1EFE8; color: #2C2C2A; }
+  .lp-none { background: var(--surface-2); color: var(--text-2); }
+
+  .capacity-section {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 0.5px solid var(--border);
+  }
+  .capacity-section h3 { margin-bottom: 10px; }
+
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+    margin-top: 10px;
+  }
+  .week-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 500;
+    background: var(--surface-2);
+    color: var(--text-3);
+    position: relative;
+  }
+  .week-cell.committed {
+    background: #D3D1C7;
+    color: #2C2C2A;
+  }
+  .week-cell.allocated {
+    background: #B5D4F4;
+    color: #0C447C;
+  }
+  .week-cell.start {
+    box-shadow: inset 0 0 0 2px #0C447C;
+  }
+  .week-legend {
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-2);
+    flex-wrap: wrap;
+  }
+  .week-legend .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  .verdict {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 14px;
+  }
+  .verdict.ok { background: #E1F5EE; color: #085041; }
+  .verdict.warn { background: #FAEEDA; color: #854F0B; }
+  .verdict.bad { background: #FCEBEB; color: #791F1F; }
+
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .scale-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .scale-card .title { font-weight: 500; font-size: 14px; margin-bottom: 6px; }
+  .scale-card .items { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+
+  .example-list { padding: 0; }
+  .example {
+    padding: 14px 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .example:last-child { border-bottom: 0; }
+  .example-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .example-name { font-weight: 500; font-size: 14px; }
+  .example-meta { font-size: 12px; color: var(--text-2); }
+  .badge {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: var(--radius);
+    font-weight: 500;
+  }
+  .badge-high { background: #E1F5EE; color: #085041; }
+  .badge-mid { background: #FAEEDA; color: #854F0B; }
+  .badge-low { background: #FCEBEB; color: #791F1F; }
+  .badge-fast { background: #791F1F; color: white; }
+
+  .checklist {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+  }
+  .checklist ul { margin: 0 0 10px; padding-left: 20px; }
+  .checklist li { margin-bottom: 4px; font-size: 14px; }
+  .checklist em { color: var(--text-2); font-style: italic; font-size: 13px; }
+
+  .agent-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2a 100%);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .agent-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(181, 212, 244, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .agent-content { position: relative; z-index: 1; }
+  .agent-badge {
+    display: inline-block;
+    background: #FAC775;
+    color: #412402;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .agent-title {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 8px;
+    color: white;
+  }
+  .agent-subtitle {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 14px;
+    line-height: 1.6;
+    max-width: 540px;
+  }
+  .agent-hint {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    font-style: italic;
+  }
+
+  .footer {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 0.5px solid var(--border);
+    font-size: 13px;
+    color: var(--text-3);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- AGENTE CONVERSACIONAL -->
+  <div class="agent-card">
+    <div class="agent-content">
+      <div class="agent-badge">🤖 NUEVO</div>
+      <h2 class="agent-title">¿Tienes una solicitud nueva?</h2>
+      <p class="agent-subtitle">Habla con el agente de priorización. Te guía paso a paso, calcula el score contigo y crea el proyecto directo en Linear.</p>
+      <p class="agent-hint">↘ Haz clic en el botón flotante para empezar la conversación</p>
+    </div>
+  </div>
+
+  <!-- Widget de ElevenLabs ConvAI -->
+  <elevenlabs-convai agent-id="agent_7301ksn7fejxfqf93mx3xc19vysz"></elevenlabs-convai>
+  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+
+  <h1>Framework de priorización</h1>
+  <p class="subtitle">RICE adaptado · objetivo: adquisición · input dominante: clientes</p>
+
+  <!-- FAST-TRACK ALERT -->
+  <div class="fast-track">
+    <span class="label">SE SALTA LA FILA</span>
+    <h3>Compliance y bugs críticos no pasan por el score</h3>
+    <p>Si la solicitud cae en alguna de estas categorías, va directo a ejecución y desplaza lo que estaba planeado:</p>
+    <ul>
+      <li><strong>Compliance / fiscal / legal</strong> — cambio regulatorio, multa, exigencia legal</li>
+      <li><strong>Bug crítico en producción</strong> — pérdida de datos, sistema caído, transacción financiera rota</li>
+      <li><strong>Riesgo de seguridad</strong> — fuga, vulnerabilidad explotable</li>
+    </ul>
+    <p style="margin-top: 6px; font-style: italic;">Bugs no críticos (cosméticos, edge cases) entran a la fila normal con score.</p>
+  </div>
+
+  <!-- DECISION FLOW -->
+  <h2>Flujo de decisión</h2>
+  <div class="flow-diagram">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-content">
+        <strong>¿Es fast-track?</strong>
+        <span>Si es compliance, bug crítico o seguridad → se ejecuta de inmediato. Se brinca todo lo de abajo.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-content">
+        <strong>Calcular el score</strong>
+        <span>Alcance, impacto, confianza, alineación, esfuerzo.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-content">
+        <strong>Validar capacity del squad</strong>
+        <span>¿En qué semana hay espacio para absorberlo? Score alto sin capacity solo genera ansiedad.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-content">
+        <strong>Comprometerse con la fecha</strong>
+        <span>Comunicar al stakeholder la semana de inicio y la ventana de entrega.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="muted" style="margin-bottom: 4px;">Fórmula</div>
+    <code>Score = (Alcance × Impacto × Confianza × Alineación) ÷ Esfuerzo</code>
+  </div>
+
+  <!-- CALCULATOR -->
+  <h2>Calculadora</h2>
+  <div class="card">
+
+    <!-- Squad selector -->
+    <h3 style="margin-bottom: 10px;">¿Qué squad se hace cargo?</h3>
+    <select class="squad-dropdown" id="squad-dropdown">
+      <option value="integraciones" data-week="2" selected>Integraciones — libre: semana 2</option>
+      <option value="pdv" data-week="5">PDV — libre: semana 5</option>
+      <option value="wansoft" data-week="3">Wansoft Web — libre: semana 3</option>
+      <option value="apps" data-week="4">Apps — libre: semana 4</option>
+    </select>
+    <p class="muted" style="font-size: 12px; margin-bottom: 16px; font-style: italic;">Tip: actualiza la "semana libre" de cada squad semanalmente con los líderes para mantener el framework vivo.</p>
+
+    <!-- Fast-track checks -->
+    <h3 style="margin-bottom: 8px; padding-top: 10px; border-top: 0.5px solid var(--border);">Antes de puntuar, ¿es fast-track?</h3>
+    <div class="checkbox-row">
+      <input type="checkbox" id="fast-compliance">
+      <label for="fast-compliance">Compliance / fiscal / legal</label>
+      <span class="tag">URGENT</span>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="fast-bug">
+      <label for="fast-bug">Bug crítico en producción</label>
+      <span class="tag">URGENT</span>
+    </div>
+    <div class="checkbox-row" style="margin-bottom: 16px;">
+      <input type="checkbox" id="fast-security">
+      <label for="fast-security">Riesgo de seguridad</label>
+      <span class="tag">URGENT</span>
+    </div>
+
+    <h3 style="margin-bottom: 10px; padding-top: 10px; border-top: 0.5px solid var(--border);">Variables del score</h3>
+
+    <div class="row">
+      <label>Alcance</label>
+      <input type="range" min="1" max="5" value="3" step="1" id="reach">
+      <span class="value" id="reach-out">3 — segmento</span>
+    </div>
+    <div class="row">
+      <label>Impacto</label>
+      <input type="range" min="0" max="4" value="2" step="1" id="impact">
+      <span class="value" id="impact-out">1 — medio</span>
+    </div>
+    <div class="row">
+      <label>Confianza</label>
+      <input type="range" min="0" max="2" value="1" step="1" id="conf">
+      <span class="value" id="conf-out">80% — evidencia</span>
+    </div>
+    <div class="row">
+      <label>Alineación</label>
+      <input type="range" min="0" max="2" value="1" step="1" id="align">
+      <span class="value" id="align-out">1.0 — neutro</span>
+    </div>
+    <div class="row">
+      <label>Esfuerzo</label>
+      <input type="range" min="1" max="20" value="4" step="1" id="effort">
+      <span class="value" id="effort-out">4 semanas-squad</span>
+    </div>
+
+    <div class="results">
+      <div class="stat">
+        <div class="stat-label">Prioridad Linear</div>
+        <div class="stat-value" id="linear-out" style="font-size: 18px;">
+          <span class="linear-priority lp-medium" id="linear-badge">
+            <span class="icon">📊</span>
+            <span id="linear-label">Medium</span>
+          </span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Score</div>
+        <div class="stat-value" id="score-out">3.00</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Esfuerzo</div>
+        <div class="stat-value" id="effort-display">4 sem</div>
+      </div>
+    </div>
+
+    <!-- CAPACITY CHECK -->
+    <div class="capacity-section">
+      <h3>Capacity del squad <span id="squad-name-display" style="color: var(--text-2); font-weight: 400;">— Integraciones</span></h3>
+      <p class="muted" style="margin-bottom: 12px;">Próxima semana disponible: <strong id="next-week-display" style="color: var(--text);">semana 2</strong></p>
+
+      <div class="week-grid" id="week-grid"></div>
+
+      <div class="week-legend">
+        <span><span class="dot" style="background: #D3D1C7;"></span>Comprometido</span>
+        <span><span class="dot" style="background: #B5D4F4;"></span>Esta solicitud</span>
+        <span><span class="dot" style="background: var(--surface-2);"></span>Disponible</span>
+      </div>
+
+      <div class="verdict" id="verdict">Inicio en la semana 2 · entrega entre semanas 2 y 5</div>
+    </div>
+  </div>
+
+  <!-- LINEAR MAPPING -->
+  <h2>Mapeo a prioridades de Linear</h2>
+  <p class="muted" style="margin-bottom: 12px;">El score se traduce automáticamente al sistema de prioridades de Linear para que el equipo trabaje con un solo lenguaje.</p>
+  <div class="card" style="padding: 0;">
+    <div style="padding: 12px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <span class="linear-priority lp-urgent">
+          <span class="icon">⚠️</span>
+          <span>Urgent (1)</span>
+        </span>
+      </div>
+      <span style="font-size: 13px; color: var(--text-2);">Fast-track · compliance, bug crítico, seguridad</span>
+    </div>
+    <div style="padding: 12px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <span class="linear-priority lp-high">
+          <span class="icon">📊</span>
+          <span>High (2)</span>
+        </span>
+      </div>
+      <span style="font-size: 13px; color: var(--text-2);">Score ≥ 8</span>
+    </div>
+    <div style="padding: 12px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <span class="linear-priority lp-medium">
+          <span class="icon">📊</span>
+          <span>Medium (3)</span>
+        </span>
+      </div>
+      <span style="font-size: 13px; color: var(--text-2);">Score entre 2 y 8</span>
+    </div>
+    <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <span class="linear-priority lp-low">
+          <span class="icon">📊</span>
+          <span>Low (4)</span>
+        </span>
+      </div>
+      <span style="font-size: 13px; color: var(--text-2);">Score &lt; 2</span>
+    </div>
+  </div>
+
+  <!-- SCALES -->
+  <h2>Escalas</h2>
+  <div class="grid-4">
+    <div class="scale-card">
+      <div class="title">Alcance (1-5)</div>
+      <div class="items">1: 1 cliente<br>2: nicho (&lt;10%)<br>3: segmento (10-30%)<br>4: mayoría (30-70%)<br>5: todos (&gt;70%)</div>
+    </div>
+    <div class="scale-card">
+      <div class="title">Impacto</div>
+      <div class="items">0.25: mínimo<br>0.5: bajo<br>1: medio<br>2: alto<br>3: masivo</div>
+    </div>
+    <div class="scale-card">
+      <div class="title">Confianza</div>
+      <div class="items">50%: corazonada<br>80%: evidencia<br>100%: validado</div>
+    </div>
+    <div class="scale-card">
+      <div class="title">Alineación c/ adquisición</div>
+      <div class="items">0.5: no ayuda a vender<br>1.0: neutro / retención<br>1.5: abre mercado, tumba objeción</div>
+    </div>
+  </div>
+
+  <!-- EXAMPLES -->
+  <h2>Ejemplos comparativos</h2>
+  <div class="card example-list" style="padding: 0;">
+    <div class="example">
+      <div class="example-header">
+        <span class="example-name">Adecuación al CFDI 4.0</span>
+        <span class="linear-priority lp-urgent" style="font-size: 12px; padding: 3px 10px;">
+          <span>Urgent</span>
+        </span>
+      </div>
+      <div class="example-meta">Fast-track · compliance fiscal · Wansoft Web</div>
+    </div>
+    <div class="example">
+      <div class="example-header">
+        <span class="example-name">Integración con Rappi</span>
+        <span class="linear-priority lp-high" style="font-size: 12px; padding: 3px 10px;">
+          <span>High · Score 11.3</span>
+        </span>
+      </div>
+      <div class="example-meta">A 5 · I 3 · C 100% · Al 1.5 · E 2 sem · Apps + Integraciones</div>
+    </div>
+    <div class="example">
+      <div class="example-header">
+        <span class="example-name">Reporte fiscal por sucursal</span>
+        <span class="linear-priority lp-low" style="font-size: 12px; padding: 3px 10px;">
+          <span>Low · Score 1.6</span>
+        </span>
+      </div>
+      <div class="example-meta">A 3 · I 1 · C 80% · Al 1.0 · E 1.5 sem · Wansoft Web</div>
+    </div>
+    <div class="example">
+      <div class="example-header">
+        <span class="example-name">Personalización de comanda (1 cliente)</span>
+        <span class="linear-priority lp-low" style="font-size: 12px; padding: 3px 10px;">
+          <span>Low · Score 0.04</span>
+        </span>
+      </div>
+      <div class="example-meta">A 1 · I 0.5 · C 50% · Al 0.5 · E 3 sem · PDV</div>
+    </div>
+  </div>
+
+  <!-- IMPACT MEASUREMENT -->
+  <h2>Medir impacto sin adivinar</h2>
+  <div class="checklist">
+    <p style="font-size: 13px; color: var(--text-2); margin-bottom: 8px;">Cada solicitud debe responder al menos una de estas preguntas con número:</p>
+    <ul>
+      <li>¿Cuántos deals están atorados? ($ MXN en pipeline)</li>
+      <li>¿Cuántos clientes lo pidieron explícitamente en los últimos 90 días?</li>
+      <li>¿Cuánto MRR está en riesgo si no se hace?</li>
+      <li>¿Cuánto tiempo de soporte/operación ahorra al mes?</li>
+    </ul>
+    <em>Si nadie puede responder ninguna: impacto bajo o confianza 50%.</em>
+  </div>
+
+  <!-- DINÁMICA -->
+  <h2>Dinámica de priorización con stakeholders</h2>
+  <p class="muted" style="margin-bottom: 12px;">El score es una dirección, no la decisión final. Los stakeholders pueden hacer override siempre que esté justificado.</p>
+
+  <div class="card" style="background: #E6F1FB; border-color: #85B7EB;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+      <span style="font-size: 20px;">📋</span>
+      <strong style="font-size: 15px; color: #0C447C;">Board de referencia</strong>
+    </div>
+    <p style="margin: 0 0 8px; font-size: 14px; color: #185FA5;">Toda la priorización vive en Linear. La fuente de verdad es el board del equipo Wansoft:</p>
+    <a href="https://linear.app/payclip/team/WAN2/projects/all" target="_blank" style="display: inline-block; padding: 8px 14px; background: white; border: 0.5px solid #85B7EB; border-radius: var(--radius); color: #0C447C; text-decoration: none; font-size: 13px; font-weight: 500;">linear.app/payclip/team/WAN2/projects/all ↗</a>
+  </div>
+
+  <h3 style="margin-top: 1.5rem;">Comité quincenal · 45 min</h3>
+  <div class="flow-diagram">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-content">
+        <strong>Revisar Urgent (5 min)</strong>
+        <span>¿Hay nuevos fast-tracks? ¿Alguno ya se resolvió o dejó de ser crítico?</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-content">
+        <strong>Revisar High (15 min)</strong>
+        <span>Estado de ejecución, bloqueos, dependencias entre squads.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-content">
+        <strong>Revisar Medium en frontera (15 min)</strong>
+        <span>Los proyectos cerca del límite con High o Low. Aquí entra el override estratégico de los stakeholders.</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-content">
+        <strong>Validar overrides (10 min)</strong>
+        <span>Cualquier cambio de prioridad fuera del score se documenta y queda registrado en Linear.</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 1.5rem;">Reglas de override</h3>
+  <div class="card" style="padding: 0;">
+    <div style="padding: 14px 16px; border-bottom: 0.5px solid var(--border);">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="linear-priority lp-high" style="font-size: 12px; padding: 2px 8px;"><span>Subir prioridad</span></span>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: var(--text-2);">Diferencial competitivo · deal estratégico atorado · ventana de mercado · deuda técnica bloqueante · cliente ancla en riesgo</p>
+    </div>
+    <div style="padding: 14px 16px; border-bottom: 0.5px solid var(--border);">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="linear-priority lp-low" style="font-size: 12px; padding: 2px 8px;"><span>Bajar prioridad</span></span>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: var(--text-2);">Cliente desistió · dependencia se cayó · apareció alternativa · cambió la estrategia trimestral</p>
+    </div>
+    <div style="padding: 14px 16px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span style="background: #FCEBEB; color: #791F1F; font-size: 12px; padding: 2px 8px; border-radius: var(--radius); font-weight: 500;">Regla clave</span>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: var(--text-2);">Todo override <strong style="color: var(--text);">se documenta en Linear</strong> (campo "Override reason" o comentario). Sin razón registrada, no se aplica.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 1.5rem;">Cómo se ve en Linear</h3>
+  <div class="card">
+    <p style="margin: 0 0 10px; font-size: 14px;">Por cada proyecto, captura en la descripción:</p>
+    <div style="background: var(--surface-2); padding: 12px 14px; border-radius: var(--radius); font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 13px; line-height: 1.7; color: var(--text-2);">
+      <strong style="color: var(--text);">Score:</strong> 6.4<br>
+      <strong style="color: var(--text);">Variables:</strong> A4 · I2 · C0.8 · Al1.0 · E1<br>
+      <strong style="color: var(--text);">Prioridad sugerida:</strong> Medium<br>
+      <strong style="color: var(--text);">Prioridad final:</strong> High<br>
+      <strong style="color: var(--text);">Override:</strong> Diferencial competitivo vs. competidor X<br>
+      <strong style="color: var(--text);">Aprobado por:</strong> [stakeholder] · [fecha]
+    </div>
+    <p style="margin: 10px 0 0; font-size: 12px; color: var(--text-3); font-style: italic;">Así cualquier persona del equipo entiende por qué un proyecto está donde está, sin tener que preguntar.</p>
+  </div>
+
+  <div class="footer">
+    El score se traduce a prioridad de Linear, el capacity es compromiso, el fast-track es excepción justificada, el override estratégico siempre se documenta.
+  </div>
+</div>
+
+<script>
+  const reachLabels = {1:'1 — 1 cliente',2:'2 — nicho',3:'3 — segmento',4:'4 — mayoría',5:'5 — todos'};
+  const impactV = [0.25, 0.5, 1, 2, 3];
+  const impactL = ['0.25 — mínimo','0.5 — bajo','1 — medio','2 — alto','3 — masivo'];
+  const confV = [0.5, 0.8, 1.0];
+  const confL = ['50% — corazonada','80% — evidencia','100% — validado'];
+  const alignV = [0.5, 1.0, 1.5];
+  const alignL = ['0.5 — no vende','1.0 — neutro','1.5 — abre mercado'];
+
+  const squadNames = {
+    'integraciones': 'Integraciones',
+    'pdv': 'PDV',
+    'wansoft': 'Wansoft Web',
+    'apps': 'Apps'
+  };
+
+  let selectedSquad = 'integraciones';
+  let selectedWeek = 2;
+
+  function linearPriority(score, isFastTrack) {
+    if (isFastTrack) return {label: 'Urgent', class: 'lp-urgent', icon: '⚠️'};
+    if (score >= 8) return {label: 'High', class: 'lp-high', icon: '📊'};
+    if (score >= 2) return {label: 'Medium', class: 'lp-medium', icon: '📊'};
+    return {label: 'Low', class: 'lp-low', icon: '📊'};
+  }
+
+  function renderWeeks(committed, effort, isFastTrack) {
+    const grid = document.getElementById('week-grid');
+    grid.innerHTML = '';
+    const total = 12;
+    // committed = próxima semana disponible (1-indexed); todo antes está comprometido
+    const startWeekIdx = isFastTrack ? 0 : (committed - 1);
+    const endWeekIdx = Math.min(total, startWeekIdx + effort);
+
+    for (let i = 0; i < total; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'week-cell';
+      let label = 'S' + (i + 1);
+
+      if (!isFastTrack && i < (committed - 1)) {
+        cell.classList.add('committed');
+      } else if (i >= startWeekIdx && i < endWeekIdx) {
+        cell.classList.add('allocated');
+        if (i === startWeekIdx) cell.classList.add('start');
+      }
+
+      cell.textContent = label;
+      grid.appendChild(cell);
+    }
+
+    const verdict = document.getElementById('verdict');
+    if (isFastTrack) {
+      verdict.className = 'verdict bad';
+      verdict.textContent = 'FAST-TRACK · inicio inmediato · desplaza los items ya planeados en las próximas ' + effort + ' semana(s)';
+    } else if (endWeekIdx > total) {
+      verdict.className = 'verdict warn';
+      verdict.textContent = 'Capacity insuficiente en las próximas 12 semanas · revisar alcance o negociar fecha';
+    } else if ((committed - 1) + effort > 8) {
+      verdict.className = 'verdict warn';
+      verdict.textContent = 'Inicio semana ' + (startWeekIdx + 1) + ' · entrega prevista semana ' + endWeekIdx + ' · plazo largo, alinear expectativa';
+    } else {
+      verdict.className = 'verdict ok';
+      verdict.textContent = 'Inicio semana ' + (startWeekIdx + 1) + ' · entrega prevista semana ' + endWeekIdx;
+    }
+  }
+
+  function update() {
+    const r = parseInt(document.getElementById('reach').value);
+    const iI = parseInt(document.getElementById('impact').value);
+    const cI = parseInt(document.getElementById('conf').value);
+    const aI = parseInt(document.getElementById('align').value);
+    const e = parseInt(document.getElementById('effort').value);
+    const i = impactV[iI], c = confV[cI], a = alignV[aI];
+
+    const isFastTrack = document.getElementById('fast-compliance').checked ||
+                        document.getElementById('fast-bug').checked ||
+                        document.getElementById('fast-security').checked;
+
+    document.getElementById('reach-out').textContent = reachLabels[r];
+    document.getElementById('impact-out').textContent = impactL[iI];
+    document.getElementById('conf-out').textContent = confL[cI];
+    document.getElementById('align-out').textContent = alignL[aI];
+    document.getElementById('effort-out').textContent = e + (e === 1 ? ' semana-squad' : ' semanas-squad');
+    document.getElementById('effort-display').textContent = e + ' sem';
+
+    document.getElementById('squad-name-display').textContent = '— ' + squadNames[selectedSquad];
+    document.getElementById('next-week-display').textContent = 'semana ' + selectedWeek;
+
+    const badge = document.getElementById('linear-badge');
+    const label = document.getElementById('linear-label');
+    const scoreOut = document.getElementById('score-out');
+
+    if (isFastTrack) {
+      scoreOut.textContent = '—';
+      const lp = linearPriority(0, true);
+      badge.className = 'linear-priority ' + lp.class;
+      badge.querySelector('.icon').textContent = lp.icon;
+      label.textContent = lp.label;
+    } else {
+      const score = (r * i * c * a) / e;
+      scoreOut.textContent = score >= 10 ? score.toFixed(1) : score.toFixed(2);
+      const lp = linearPriority(score, false);
+      badge.className = 'linear-priority ' + lp.class;
+      badge.querySelector('.icon').textContent = lp.icon;
+      label.textContent = lp.label;
+    }
+
+    renderWeeks(selectedWeek, e, isFastTrack);
+  }
+
+  // Squad dropdown
+  document.getElementById('squad-dropdown').addEventListener('change', (e) => {
+    const option = e.target.options[e.target.selectedIndex];
+    selectedSquad = option.value;
+    selectedWeek = parseInt(option.dataset.week);
+    update();
+  });
+
+  ['reach','impact','conf','align','effort'].forEach(id => {
+    document.getElementById(id).addEventListener('input', update);
+  });
+  ['fast-compliance','fast-bug','fast-security'].forEach(id => {
+    document.getElementById(id).addEventListener('change', update);
+  });
+  update();
+</script>
+</body>
+</html>
