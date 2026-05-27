@@ -322,57 +322,6 @@
   .checklist li { margin-bottom: 4px; font-size: 14px; }
   .checklist em { color: var(--text-2); font-style: italic; font-size: 13px; }
 
-  .agent-card {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2a 100%);
-    border-radius: var(--radius-lg);
-    padding: 1.75rem 1.5rem;
-    margin-bottom: 2rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
-  }
-  .agent-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 60%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(181, 212, 244, 0.15) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .agent-content { position: relative; z-index: 1; }
-  .agent-badge {
-    display: inline-block;
-    background: #FAC775;
-    color: #412402;
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px 10px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
-  }
-  .agent-title {
-    font-size: 22px;
-    font-weight: 500;
-    margin: 0 0 8px;
-    color: white;
-  }
-  .agent-subtitle {
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.8);
-    margin: 0 0 14px;
-    line-height: 1.6;
-    max-width: 540px;
-  }
-  .agent-hint {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.6);
-    margin: 0;
-    font-style: italic;
-  }
-
   .footer {
     margin-top: 2.5rem;
     padding-top: 1.5rem;
@@ -385,16 +334,6 @@
 </head>
 <body>
 <div class="container">
-
-  <!-- AGENTE CONVERSACIONAL -->
-  <div class="agent-card">
-    <div class="agent-content">
-      <div class="agent-badge">🤖 NUEVO</div>
-      <h2 class="agent-title">¿Tienes una solicitud nueva?</h2>
-      <p class="agent-subtitle">Habla con el agente de priorización. Te guía paso a paso, calcula el score contigo y crea el proyecto directo en Linear.</p>
-      <p class="agent-hint">↘ Haz clic en el botón flotante para empezar la conversación</p>
-    </div>
-  </div>
 
   <!-- Widget de ElevenLabs ConvAI -->
   <elevenlabs-convai agent-id="agent_7301ksn7fejxfqf93mx3xc19vysz"></elevenlabs-convai>
